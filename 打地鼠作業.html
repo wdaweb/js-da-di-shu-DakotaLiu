@@ -4,22 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>徐錦江在哪裡</title>
+    <title>熊本熊在哪裡</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             font-family: "微軟正黑體", Helvetica;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .area {
             width: 800px;
             height: 800px;
             padding: 20px;
-            margin: 10px auto;
-            border: 3px solid red;
-            display: table;
-            border-collapse: collapse;
         }
 
         header {
@@ -28,15 +27,16 @@
 
         header h1 {
             margin: 0;
+            padding: 0;
             float: left;
-            line-height: 94px;
         }
 
         header .score-box {
             float: right;
             width: 100px;
             padding: 10px;
-            border: 2px solid black;
+            margin-left: 20px;
+            border: 2px solid red;
         }
 
         header .score-box h2 {
@@ -44,7 +44,8 @@
             text-align: center;
         }
 
-        .score-out {
+        .score {
+            display: block;
             font-size: 24px;
             text-align: center;
             margin: 0;
@@ -55,104 +56,138 @@
             margin: 30px auto;
         }
 
-        .game {
-            width: 600px;
-            margin: 30px auto;
+        .hole {
+            width: 240px;
+            height: 240px;
+            background: black;
         }
 
-        .row {
-            display: table-row;
-            clear: both;
+        .kumamon {
+            background: url('./kumamon.png');
         }
 
-        .matched {
-            width: 200px;
-            height: 200px;
-            position: relative;
-            overflow: hidden;
-            display: table-cell;
-
-        }
-
-        .person {
-            width: 80px;
-            position: absolute;
-
-        }
-
-        .matched img {
-            width: 134.4px;
+        .bai {
+            background: url('./bai.png');
         }
     </style>
 </head>
 
 <body>
     <div class="area">
+        <h1>熊本熊在哪裡</h1>
         <header>
-            <h1>徐錦江在哪裡</h1>
             <div class="score-box" id="score-box">
                 <h2>目前得分</h2>
-                <span class="score-out" id="score-out">0</span>
+                <span class="score" id="text-score">0</span>
+                <h2>剩餘時間</h2>
+                <span class="score" id="text-time">10</span>
+                <hr color="black;">
+                <input type="button" value="遊戲開始" id="btn-start">
             </div>
         </header>
-        <main>
-            <input type="button" value="遊戲開始" id="btn-start">
 
-            <body class="game">
-                <div class="row">
-                    <div class="matched">
-                        <div class="person"></div>
-                        <img src="./Marvel.png" alt="" class="holebottom">
-                        <div class="hide"></div>
-                    </div>
-                    <div class="matched">
-                        <div class="person"></div>
-                        <img src="./Marvel.png" alt="" class="holebottom">
-                        <div class="hide"></div>
-                    </div>
-                    <div class="matched">
-                        <div class="person"></div>
-                        <img src="./Marvel.png" alt="" class="holebottom">
-                        <div class="hide"></div>
-                    </div>
-                    <div class="row">
-                        <div class="matched">
-                            <div class="person"></div>
-                            <img src="./Marvel.png" alt="" class="holebottom">
-                            <div class="hide"></div>
-                        </div>
-                        <div class="matched">
-                            <div class="person"></div>
-                            <img src="./Marvel.png" alt="" class="holebottom">
-                            <div class="hide"></div>
-                        </div>
-                        <div class="matched">
-                            <div class="person"></div>
-                            <img src="./Marvel.png" alt="" class="holebottom">
-                            <div class="hide"></div>
-                        </div>
-                        <div class="row">
-                            <div class="matched">
-                                <div class="person"></div>
-                                <img src="./Marvel.png" alt="" class="holebottom">
-                                <div class="hide"></div>
-                            </div>
-                            <div class="matched">
-                                <div class="person"></div>
-                                <img src="./Marvel.png" alt="" class="holebottom">
-                                <div class="hide"></div>
-                            </div>
-                            <div class="matched">
-                                <div class="person"></div>
-                                <img src="./Marvel.png" alt="" class="holebottom">
-                                <div class="hide"></div>
-                            </div>
-                        </div>
-                    </div>
-
-        </main>
-
+        <table id="game" border="1">
+            <tr>
+                <td class="hole" id="hole7"></td>
+                <td class="hole" id="hole8"></td>
+                <td class="hole" id="hole9"></td>
+            </tr>
+            <tr>
+                <td class="hole" id="hole4"></td>
+                <td class="hole" id="hole5"></td>
+                <td class="hole" id="hole6"></td>
+            </tr>
+            <tr>
+                <td class="hole" id="hole1"></td>
+                <td class="hole" id="hole2"></td>
+                <td class="hole" id="hole3"></td>
+            </tr>
+        </table>
     </div>
+    <script>
+        const holes = document.getElementsByClassName("hole");
+        const btnStart = document.getElementById("btn-start");
+        const textScore = document.getElementById("text-score");
+        const textTime = document.getElementById("text-time");
+
+        // 分數
+        let score = 0;
+        // 是否在遊戲中
+        let inGame = false;
+        // 剩餘秒數
+        let timeleft = 10;
+        // 計時器
+        let timer = 0;
+
+        btnStart.onclick = () => {
+            // 停用開始按鈕
+            btnStart.disabled = true;
+            // 設定每秒變換一次
+            timer = setInterval(game, 1000);
+            game();
+            // 重置分數
+            textScore.innerText = score;
+            score = 0;
+            // 設定狀態遊戲中
+            inGame = true;
+            // 重設時間
+            timeleft = 10;
+            textTime.innerText = timeleft;
+        }
+
+        const game = () => {
+            // 清除格子的class
+            for (let hole of holes) {
+                hole.classList.remove("kumamon");
+                hole.classList.remove("bai");
+            }
+            // 隨機抽三格, 變紅色
+            for (let i = 0; i < 3; i++) {
+                const rand = Math.floor(Math.random() * 9);
+                holes[rand].classList.add("kumamon");
+            }
+            // 時間減一
+            timeleft--;
+            textTime.innerText = timeleft;
+
+            // 如果時間到了
+            if (timeleft == 0) {
+                inGame = false;
+                clearInterval(timer);
+                for (let hole of holes) {
+                    hole.classList.remove("kumamon");
+                    hole.classList.remove("bai");
+                }
+                // 啟用開始按鈕
+                btnStart.disabled = false;
+                alert(`你得到${score}分`);
+            }
+        }
+
+        for (let hole of holes) {
+            hole.onclick = () => {
+                // 如果在遊戲中且包含red
+                if (inGame && hole.classList.contains("kumamon")) {
+                    // 標記為按下去
+                    hole.classList.add("bai");
+                    hole.classList.remove("kumamon");
+                    // 加一分
+                    score++;
+                    textScore.innerText = score;
+                }
+            }
+        }
+        document.onkeydown = (event) => {
+            const key = event.key;
+            // 如果按鍵是數字, 且在遊戲中, 數字為1~9
+            if (!isNaN(key) && inGame && key > 0 && key < 10) {
+                // 找到對應的格子
+                const target = document.getElementById(`hole${key}`);
+                // 觸發點擊事件
+                target.click();
+            }
+        }
+    </script>
 </body>
 
 </html>
